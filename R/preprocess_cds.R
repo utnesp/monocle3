@@ -91,7 +91,8 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
   }
 
   if (!is.null(use_genes)) {
-    FM <- FM[use_genes, ]
+    if (norm.method != "vst") FM <- FM[use_genes, ]
+    if (norm.method == "vst") FM <- FM[row.names(FM) %in% use_genes, ]
   }
 
   fm_rowsums = Matrix::rowSums(FM)
