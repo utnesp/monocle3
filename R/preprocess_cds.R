@@ -43,7 +43,7 @@
 #' @param verbose Whether to emit verbose output during dimensionality
 #'   reduction
 #' @param ... additional arguments to pass to limma::lmFit if
-#'   residual_model_formula is not NULL
+#'   residual_model_formula is not NULL or to sctransform::vst
 #' @return an updated cell_data_set object
 #' @export
 preprocess_cds <- function(cds, method = c('PCA', "LSI"),
@@ -55,28 +55,6 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
                            pseudo_count=NULL,
                            scaling = TRUE,
                            verbose=FALSE,
-                           
-                           cell_attr = NULL, 
-                           latent_var = c("log_umi"), 
-                           batch_var = NULL, 
-                           latent_var_nonreg = NULL, 
-                           n_genes = 2000, 
-                           n_cells = NULL, 
-                           vst_method = "poisson", 
-                           do_regularize = TRUE, 
-                           res_clip_range = c(-sqrt(ncol(umi)), 
-                           sqrt(ncol(umi))), 
-                           bin_size = 256, 
-                           min_cells = 5, 
-                           residual_type = "pearson", 
-                           return_cell_attr = FALSE, 
-                           return_gene_attr = TRUE, 
-                           return_corrected_umi = FALSE, 
-                           min_variance = -Inf, 
-                           bw_adjust = 3, 
-                           gmean_eps = 1, 
-                           theta_given = NULL, 
-                           show_progress = TRUE,
                            ...) {
 
   assertthat::assert_that(
@@ -103,33 +81,10 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
 
   method <- match.arg(method)
   norm_method <- match.arg(norm_method)
-    
-  # Arguments corresponding to sctransform::vst
-  cell_attr <-  match.arg(cell_attr)
-  latent_var <- match.arg(latent_var)
-  batch_var <- match.arg(batch_var)
-  latent_var_nonreg <- match.arg(latent_var_nonreg) 
-  n_genes <- match.arg(n_genes)
-  n_cells <- match.arg(n_cells)
-  vst_method <- match.arg(vst_method)
-  do_regularize <- match.arg(do_regularize) 
-  res_clip_range <- match.arg(res_clip_range)
-  bin_size <- match.arg(bin_size)
-  min_cells <- match.arg(min_cells)
-  residual_type <- match.arg(residual_type)
-  return_cell_attr <- match.arg(return_cell_attr)
-  return_gene_attr <- match.arg(return_gene_attr)
-  return_corrected_umi <- match.arg(return_corrected_umi)
-  min_variance <- match.arg(min_variance)
-  bw_adjust <- match.arg(bw_adjust)
-  gmean_eps <- match.arg(gmean_eps)
-  theta_given <- match.arg(theta_given)
-  show_progress <- match.arg(show_progress)
-  
 
   #ensure results from RNG sensitive algorithms are the same on all calls
   set.seed(2016)
-  FM <- normalize_expr_data(cds, norm_method, pseudo_count, )
+  FM <- normalize_expr_data(cds, norm_method, pseudo_count, ...)
 
   if (nrow(FM) == 0) {
     stop("Error: all rows have standard deviation zero")
@@ -185,53 +140,11 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
 normalize_expr_data <- function(cds,
                                 norm_method = c("log", "size_only", "vst", "none"),
                                 pseudo_count = NULL, 
-                                 
-                                cell_attr = NULL, 
-                                latent_var = c("log_umi"), 
-                                batch_var = NULL, 
-                                latent_var_nonreg = NULL, 
-                                n_genes = 2000, 
-                                n_cells = NULL, 
-                                vst_method = "poisson", 
-                                do_regularize = TRUE, 
-                                res_clip_range = c(-sqrt(ncol(umi)), sqrt(ncol(umi))), 
-                                bin_size = 256, 
-                                min_cells = 5, 
-                                residual_type = "pearson", 
-                                return_cell_attr = FALSE, 
-                                return_gene_attr = TRUE, 
-                                return_corrected_umi = FALSE, 
-                                min_variance = -Inf, 
-                                bw_adjust = 3, 
-                                gmean_eps = 1, 
-                                theta_given = NULL, 
-                                show_progress = TRUE
+                                ...
                                 ) {
   
   norm_method <- match.arg(norm_method)
 
-  # Arguments corresponding to sctransform::vst
-  cell_attr <-  match.arg(cell_attr)
-  latent_var <- match.arg(latent_var)
-  batch_var <- match.arg(batch_var)
-  latent_var_nonreg <- match.arg(latent_var_nonreg) 
-  n_genes <- match.arg(n_genes)
-  n_cells <- match.arg(n_cells)
-  vst_method <- match.arg(vst_method)
-  do_regularize <- match.arg(do_regularize) 
-  res_clip_range <- match.arg(res_clip_range)
-  bin_size <- match.arg(bin_size)
-  min_cells <- match.arg(min_cells)
-  residual_type <- match.arg(residual_type)
-  return_cell_attr <- match.arg(return_cell_attr)
-  return_gene_attr <- match.arg(return_gene_attr)
-  return_corrected_umi <- match.arg(return_corrected_umi)
-  min_variance <- match.arg(min_variance)
-  bw_adjust <- match.arg(bw_adjust)
-  gmean_eps <- match.arg(gmean_eps)
-  theta_given <- match.arg(theta_given)
-  show_progress <- match.arg(show_progress)
-  
   
   FM <- SingleCellExperiment::counts(cds)
 
@@ -263,28 +176,8 @@ normalize_expr_data <- function(cds,
   } 
   
   if (norm_method == "vst") {  
-    vst_out <- sctransform::vst(FM, 
-                                cell_attr = cell_attr, 
-                                latent_var = latent_var, 
-                                batch_var = batch_var, 
-                                latent_var_nonreg = latent_var_nonreg, 
-                                n_genes = n_genes, 
-                                n_cells = n_cells, 
-                                method = vst_method,
-                                do_regularize = do_regularize,
-                                res_clip_range = res_clip_range, 
-                                bin_size = bin_size, 
-                                min_cells = min_cells,
-                                residual_type = residual_type,
-                                return_cell_attr = return_cell_attr,
-                                return_gene_attr = return_gene_attr,
-                                return_corrected_umi = return_corrected_umi,
-                                min_variance = min_variance, 
-                                bw_adjust = bw_adjust, 
-                                gmean_eps = gmean_eps, 
-                                theta_given = theta_given,
-                                show_progress = show_progress
-                               )
+    vst_out <- sctransform::vst(FM, ...,
+                                )
     FM <- vst_out$y
   }
   
