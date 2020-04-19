@@ -62,7 +62,7 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
                            latent_var_nonreg = NULL, 
                            n_genes = 2000, 
                            n_cells = NULL, 
-                           method = "poisson", 
+                           vst_method = "poisson", 
                            do_regularize = TRUE, 
                            res_clip_range = c(-sqrt(ncol(umi)), 
                            sqrt(ncol(umi))), 
@@ -111,7 +111,7 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
   latent_var_nonreg <- match.arg(latent_var_nonreg) 
   n_genes <- match.arg(n_genes)
   n_cells <- match.arg(n_cells)
-  method <- match.arg(method)
+  vst_method <- match.arg(vst_method)
   do_regularize <- match.arg(do_regularize) 
   res_clip_range <- match.arg(res_clip_range)
   bin_size <- match.arg(bin_size)
@@ -192,7 +192,7 @@ normalize_expr_data <- function(cds,
                                 latent_var_nonreg = NULL, 
                                 n_genes = 2000, 
                                 n_cells = NULL, 
-                                method = "poisson", 
+                                vst_method = "poisson", 
                                 do_regularize = TRUE, 
                                 res_clip_range = c(-sqrt(ncol(umi)), 
                                 sqrt(ncol(umi))), 
@@ -218,7 +218,7 @@ normalize_expr_data <- function(cds,
   latent_var_nonreg <- match.arg(latent_var_nonreg) 
   n_genes <- match.arg(n_genes)
   n_cells <- match.arg(n_cells)
-  method <- match.arg(method)
+  vst_method <- match.arg(vst_method)
   do_regularize <- match.arg(do_regularize) 
   res_clip_range <- match.arg(res_clip_range)
   bin_size <- match.arg(bin_size)
@@ -270,7 +270,7 @@ normalize_expr_data <- function(cds,
                                 latent_var_nonreg = latent_var_nonreg, 
                                 n_genes = n_genes, 
                                 n_cells = n_cells, 
-                                method = method,
+                                method = vst_method,
                                 do_regularize = do_regularize,
                                 res_clip_range = res_clip_range, 
                                 bin_size = bin_size, 
