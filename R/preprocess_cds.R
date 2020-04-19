@@ -48,7 +48,7 @@
 #' @export
 preprocess_cds <- function(cds, method = c('PCA', "LSI"),
                            num_dim=50,
-                           norm_method = c("log", "size_only", "none"),
+                           norm_method = c("log", "size_only", "vst", "none"),
                            use_genes = NULL,
                            residual_model_formula_str=NULL,
                            alignment_group=NULL,
@@ -86,7 +86,7 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
   assertthat::assert_that(
     tryCatch(expr = ifelse(match.arg(norm_method) == "",TRUE, TRUE),
              error = function(e) FALSE),
-    msg = "norm_method must be one of 'log', 'size_only' or 'none'")
+    msg = "norm_method must be one of 'log', 'size_only', 'vst' or 'none'")
   assertthat::assert_that(assertthat::is.count(num_dim))
   if(!is.null(use_genes)) {
     assertthat::assert_that(is.character(use_genes))
@@ -183,7 +183,7 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
 # Helper function to normalize the expression data prior to dimensionality
 # reduction
 normalize_expr_data <- function(cds,
-                                norm_method = c("log", "size_only", "none", "vst"),
+                                norm_method = c("log", "size_only", "vst", "none"),
                                 pseudo_count = NULL, 
                                  
                                 cell_attr = NULL, 
