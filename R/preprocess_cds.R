@@ -257,12 +257,12 @@ normalize_expr_data <- function(cds,
       FM@x = log2(FM@x + 1)
     }
 
-  } else if (norm_method == "size_only") {
+  if (norm_method == "size_only") {
     FM <- Matrix::t(Matrix::t(FM)/size_factors(cds))
     FM <- FM + pseudo_count
-  }
+  } 
   
-  } else if (norm_method == "vst") {  
+  if (norm_method == "vst") {  
     vst_out <- sctransform::vst(FM, 
                                cell_attr = cell_attr, 
                                 latent_var = latent_var, 
