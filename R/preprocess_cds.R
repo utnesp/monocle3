@@ -194,8 +194,7 @@ normalize_expr_data <- function(cds,
                                 n_cells = NULL, 
                                 vst_method = "poisson", 
                                 do_regularize = TRUE, 
-                                res_clip_range = c(-sqrt(ncol(umi)), 
-                                sqrt(ncol(umi))), 
+                                res_clip_range = c(-sqrt(ncol(umi)), sqrt(ncol(umi))), 
                                 bin_size = 256, 
                                 min_cells = 5, 
                                 residual_type = "pearson", 
@@ -256,6 +255,7 @@ normalize_expr_data <- function(cds,
     } else {
       FM@x = log2(FM@x + 1)
     }
+  }
 
   if (norm_method == "size_only") {
     FM <- Matrix::t(Matrix::t(FM)/size_factors(cds))
@@ -264,7 +264,7 @@ normalize_expr_data <- function(cds,
   
   if (norm_method == "vst") {  
     vst_out <- sctransform::vst(FM, 
-                               cell_attr = cell_attr, 
+                                cell_attr = cell_attr, 
                                 latent_var = latent_var, 
                                 batch_var = batch_var, 
                                 latent_var_nonreg = latent_var_nonreg, 
