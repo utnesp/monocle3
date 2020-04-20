@@ -1,7 +1,5 @@
 #' Preprocess a cds to prepare for trajectory inference
 #'
-#' Added vst function
-#'
 #' @description Most analyses (including trajectory inference, and clustering)
 #' in Monocle3, require various normalization and preprocessing steps.
 #' \code{preprocess_cds} executes and stores these preprocessing steps.
@@ -103,10 +101,14 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
   if(method == 'PCA') {
     if (verbose) message("Remove noise by PCA ...")
     
-    irlba_res <- sparse_prcomp_irlba(Matrix::t(FM),
+    irlba_res <- irlba::prcomp_irlba(Matrix::t(FM),
                                      n = min(num_dim,min(dim(FM)) - 1),
                                      center = scaling, scale. = scaling)
     
+    #irlba_res <- sparse_prcomp_irlba(Matrix::t(FM),
+    #                                 n = min(num_dim,min(dim(FM)) - 1),
+    #                                 center = scaling, scale. = scaling)
+
     preproc_res <- irlba_res$x
     row.names(preproc_res) <- colnames(cds)
 
@@ -149,7 +151,6 @@ normalize_expr_data <- function(cds,
   
   norm_method <- match.arg(norm_method)
 
-  
   FM <- SingleCellExperiment::counts(cds)
 
   # If we're going to be using log, and the user hasn't given us a
@@ -166,7 +167,9 @@ normalize_expr_data <- function(cds,
 
     FM <- Matrix::t(Matrix::t(FM)/size_factors(cds))
 
-    if (pseudo_count != 1 || is_sparse_matrix(SingleCellExperiment::counts(cds)) == FALSE){
+    # Check if class is a sparseMatrix from Matrix package
+    
+    if (pseudo_count != 1 || class(SingleCellExperiment::counts(cds)) %in% c("dgCMatrix", "dgTMatrix") == FALSE){
       FM <- FM + pseudo_count
       FM <- log2(FM)
     } else {
