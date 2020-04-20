@@ -48,9 +48,6 @@
 #'   residual_model_formula is not NULL or to sctransform::vst
 #' @return an updated cell_data_set object
 #' @export
-#' @import limma
-#' @import irlba
-#' @import monocle3
 preprocess_cds <- function(cds, method = c('PCA', "LSI"),
                            num_dim=50,
                            norm_method = c("log", "size_only", "vst", "none"),
@@ -144,7 +141,6 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
 
 # Helper function to normalize the expression data prior to dimensionality
 # reduction
-#' @import sctransform
 normalize_expr_data <- function(cds,
                                 norm_method = c("log", "size_only", "vst", "none"),
                                 pseudo_count = NULL, 
