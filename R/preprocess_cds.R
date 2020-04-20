@@ -1,5 +1,7 @@
 #' Preprocess a cds to prepare for trajectory inference
 #'
+#' Added vst function
+#'
 #' @description Most analyses (including trajectory inference, and clustering)
 #' in Monocle3, require various normalization and preprocessing steps.
 #' \code{preprocess_cds} executes and stores these preprocessing steps.
@@ -46,6 +48,9 @@
 #'   residual_model_formula is not NULL or to sctransform::vst
 #' @return an updated cell_data_set object
 #' @export
+#' @import limma
+#' @import irlba
+#' @import monocle3
 preprocess_cds <- function(cds, method = c('PCA', "LSI"),
                            num_dim=50,
                            norm_method = c("log", "size_only", "vst", "none"),
@@ -100,10 +105,11 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
 
   if(method == 'PCA') {
     if (verbose) message("Remove noise by PCA ...")
-
+    
     irlba_res <- sparse_prcomp_irlba(Matrix::t(FM),
                                      n = min(num_dim,min(dim(FM)) - 1),
                                      center = scaling, scale. = scaling)
+    
     preproc_res <- irlba_res$x
     row.names(preproc_res) <- colnames(cds)
 
@@ -138,6 +144,7 @@ preprocess_cds <- function(cds, method = c('PCA', "LSI"),
 
 # Helper function to normalize the expression data prior to dimensionality
 # reduction
+#' @import sctransform
 normalize_expr_data <- function(cds,
                                 norm_method = c("log", "size_only", "vst", "none"),
                                 pseudo_count = NULL, 
