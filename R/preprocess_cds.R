@@ -183,9 +183,12 @@ normalize_expr_data <- function(cds,
   } 
   
   if (norm_method == "vst") {  
-    vst_out <- sctransform::vst(FM, ...,
-                                )
-    FM <- vst_out$y
+    vst_out <- sctransform::vst(FM, return_corrected_umi = T, ...)
+    
+    assign("cds_vst", vst_out, envir = .GlobalEnv)
+    print("Assigned object cds_vst output from sctransform::vst")
+    
+    FM <- vst_out$umi_corrected
   }
   
   return (FM)
